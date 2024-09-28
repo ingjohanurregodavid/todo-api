@@ -1,0 +1,67 @@
+<div class="container">
+    <h1>Es bueno estar de vuelta</h1>
+    <h2>{{welcome}}</h2>
+    <ul>
+        <li *ngFor="let task of tasks()">
+            {{task}}
+        </li>
+    </ul>
+    <hr/>
+    <h2>{{'Suma:'.repeat(1)}}</h2>
+    <p>La suma de 3 + 3 = {{3+3}}</p>
+    <p>Mi nombre es : {{name +' y mi edad es: '+ age}}</p>
+    <img [src]="person().avatar" alt="">
+    <input type="text" [value]="name">
+    <br>
+    <button [disabled]="disable">Click me</button>
+    <br>
+    <p>Mi nombre es: {{person().nombre}}</p>
+    <hr/>
+    <button (click)="clickHandler()">Enviar</button>
+    <br>
+    <p>(change)</p>
+    <input type="number" [value]="person().age" (change)="changeHandler($event)">
+    <p>(keydown)</p>
+    <input type="text" (keydown)="downHandler($event)">
+    <br>
+    <p>Eventos de atajos</p>
+    <input type="text" (keydown.enter)="clickHandler()">
+    <hr>
+    <p>Signal</p>
+    <p>Mi nombre es : {{myName() +' y mi edad es: '+ age}}</p>
+    <input type="text" [value]="myName()" (change)="signalHandler($event)">
+    <p>{{myName()}}</p>
+    <hr>
+    <p>El total de elementos es: {{tasks().length}}</p>
+    <ul>
+        <li *ngFor="let task of tasks();index as i">
+            {{i}} {{task}}
+        </li>
+    </ul>
+    <hr/>
+    <p>(Edad)</p>
+    <input type="number" [value]="person().age" (change)="changeAge($event)">
+    <hr/>
+    
+    <div *ngIf="myName()==='Johan'">
+        My nombre es {{myName()}}
+    </div>
+
+    <div *ngIf="person().nombre==='Johan' && person().age>18;else elseBlock">
+        My nombre es {{myName()}} y soy mayor de 18
+    </div>
+    <ng-template #elseBlock>
+        Soy menor de 18
+    </ng-template>
+    <hr/>
+    <p>(Nombre)</p>
+    <input type="text" [value]="person().nombre" (change)="changeName($event)">
+    <hr/>
+    <div [ngSwitch]="person().nombre">
+        <p *ngSwitchCase="'Johan'"> Yo soy Johan</p>
+        <p *ngSwitchDefault> Yo no soy nadie</p>
+    </div>
+    <hr/>
+    <input type="color" [formControl]="colorCtrl">
+    <p>color:{{colorCtrl.value}}</p>
+</div>
