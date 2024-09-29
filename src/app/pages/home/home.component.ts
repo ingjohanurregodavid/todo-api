@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, computed,effect, inject, Injector, signal } from '@angular/core';
 import {Task} from './../../models/task.models';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NonNullAssert } from '@angular/compiler';
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -13,23 +13,7 @@ import { NonNullAssert } from '@angular/compiler';
 
 export class HomeComponent {
 
-  tasks=signal<Task[]>([
-    {
-      id:Date.now(),
-      title: 'Crear proyecto',
-      completed:false
-    },
-    {
-      id:Date.now(),
-      title: 'Crear componentes',
-      completed:false
-    },
-    {
-      id:Date.now(),
-      title: 'Crear modelos',
-      completed:false
-    }
-  ]);
+  tasks=signal<Task[]>([]);
 
   newsTaskControl=new FormControl('',{
     nonNullable:true,
@@ -37,10 +21,52 @@ export class HomeComponent {
       Validators.required
     ]
   });
-  changeHandler(event:Event){
-    const input=event.target as HTMLInputElement;
-    const newTask =input.value;
-    this.addTask(newTask);
+
+  filter=signal<'all'|'pending'|'completed'>('all');
+
+  taskByFilter=computed(()=>{
+    const filter=this.filter();
+    const task=this.tasks();
+    if(filter==='pending'){
+      return task.filter(t=>!t.completed);
+    }
+    if(filter==='completed'){
+      return task.filter(t=>t.completed);
+    }
+    return task;
+  });
+
+  constructor(){
+    
+  }
+
+  injector=inject(Injector);
+
+  ngOnInit(){
+    const storage=localStorage.getItem('tasks');
+    if(storage){
+      const task=JSON.parse(storage);
+      this.tasks.set(task);
+    }
+    this.trackTasks();
+  }
+
+  trackTasks(){
+    effect(()=>{
+      const tasks=this.tasks();
+      localStorage.setItem('tasks',JSON.stringify(tasks));
+      console.log(tasks);
+    },{injector:this.injector});
+  }
+
+  changeHandler(){
+    if(this.newsTaskControl.valid){
+      const value=this.newsTaskControl.value.trim();
+      if(value !==''){
+        this.addTask(value);
+        this.newsTaskControl.setValue('');
+      }
+    } 
   }
 
   addTask(title:string){
@@ -51,6 +77,7 @@ export class HomeComponent {
     };
     this.tasks.update((tasks)=>[...tasks,newTask]);
   }
+
   deleteTask(index:number){
     this.tasks.update((tasks)=>tasks.filter((tasks,position)=>position!==index));
   }
@@ -68,4 +95,42 @@ export class HomeComponent {
       })
     })
   }
+
+  updateTaskEditingMode(index:number){
+    this.tasks.update((tasks) => {
+      return tasks.map((task,position)=>{
+        if(position===index){
+          return {
+            ...task,
+            editing:true
+          }         
+        }
+        return {
+          ...task,
+          editing:false
+        };
+      })
+    })
+  }
+
+  updateTaskText(index:number,event:Event){
+    const input= event.target as HTMLInputElement;
+    this.tasks.update((tasks) => {
+      return tasks.map((task,position)=>{
+        if(position===index){
+          return {
+            ...task,
+            title:input.value,
+            editing:false
+          }         
+        }
+        return task;
+      })
+    });
+  }
+
+  changeFilter(filter:'all'|'pending'|'completed'){
+    this.filter.set(filter);
+  }
+
 }

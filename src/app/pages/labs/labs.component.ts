@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnDestroy, signal } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -32,6 +32,18 @@ export class LabsComponent implements OnDestroy {
     avatar:'https://png.pngtree.com/background/20230611/original/pngtree-an-avatar-of-a-man-with-a-beard-and-tie-picture-image_3171890.jpg'
   });
   colorCtrl= new FormControl();
+  widthCtrl= new FormControl('50',{
+    nonNullable:true
+  });
+  nameCtrl= new FormControl('',{
+    nonNullable:true,
+    validators:[
+      Validators.required,
+      Validators.minLength(3)
+    ]
+  });
+
+
   sub:Subscription|null=null;
 
 //#endregion Variables
